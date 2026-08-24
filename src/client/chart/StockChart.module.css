@@ -1,0 +1,9 @@
+.axis { stroke: #d9dce1; stroke-width: 1; }
+.grid { stroke: #edf0f3; stroke-width: 1; }
+.previousClose { stroke: #c7a762; stroke-dasharray: 6 5; stroke-width: 1; }
+.line { fill: none; stroke: #17191d; stroke-width: 2.2; }
+.averageLine { fill: none; stroke: #e8a52e; stroke-width: 1.8; }
+.point { fill: #17191d; }
+.up { fill: #e3323a; stroke: #e3323a; }
+.down { fill: #159447; stroke: #159447; }
+.label { fill: #a1a5ad; font-size: 12px; }

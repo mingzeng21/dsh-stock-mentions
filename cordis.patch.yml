@@ -1,0 +1,5 @@
+# dsh-stock-mentions bundle patch. The browser half is discovered through the
+# package dsh.client manifest.
+- insert:
+    - id: stock-mentions
+      name: dsh-stock-mentions
