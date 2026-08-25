@@ -34,6 +34,7 @@ The sidebar presents the security name, market, latest price, change, high, low,
 - **Intraday and daily charts** — Uses a gradual area fill and right-side price axis for intraday data; daily K-lines cover the latest 30 trading days.
 - **Company news** — Shows the latest 10 items with title, source, and publication time, with Chinese decoding and provider switching handled in the data layer.
 - **Theme and locale** — Theme follows DSH settings; Chinese and English are provided through DSH `ctx.locale`.
+- **Market data sources** — Uses public data endpoints from Eastmoney, Tencent Finance, Sina Finance, and Tonghuashun, with automatic fallback by data type.
 - **Public data integration** — The Host owns public market requests, response validation, timeouts, cancellation, caching, and provider fallback; no API key is required.
 
 ## How it works
