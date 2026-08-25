@@ -17,12 +17,12 @@ const AXIS_LABEL_Y = HEIGHT - 11
 
 type CandleExtremum = { value: number; index: number }
 
-export function StockChart({ points, bars, previousClose, mode, labels = { line: '分时走势', candle: 'K 线走势', noData: '暂无图表数据', high: '最高', low: '最低' } }: {
+export function StockChart({ points, bars, previousClose, mode, labels = { line: '分时走势', candle: 'K 线走势', noData: '暂无图表数据' } }: {
   points?: readonly StockIntradayPoint[]
   bars?: readonly StockKlineBar[]
   previousClose?: number | null
   mode: 'line' | 'candle'
-  labels?: { line: string; candle: string; noData: string; high?: string; low?: string }
+  labels?: { line: string; candle: string; noData: string }
 }) {
   const instanceId = useId().replace(/:/gu, '')
   const gradientId = `stock-area-${instanceId}`
@@ -129,9 +129,9 @@ export function StockChart({ points, bars, previousClose, mode, labels = { line:
       </g>
       {mode === 'candle' && candleExtrema !== null && <>
         <circle cx={x(candleExtrema.high.index)} cy={y(candleExtrema.high.value)} r="2.5" className={css.extremaHighPoint} />
-        <text {...extremaLabelPosition(candleExtrema.high, x, y, plotBottom, 'high')} className={css.extremaHighLabel}>{labels.high ?? '最高'} {formatAxisValue(candleExtrema.high.value)}</text>
+        <text {...extremaLabelPosition(candleExtrema.high, x, y, plotBottom, 'high')} className={css.extremaHighLabel}>{formatAxisValue(candleExtrema.high.value)}</text>
         <circle cx={x(candleExtrema.low.index)} cy={y(candleExtrema.low.value)} r="2.5" className={css.extremaLowPoint} />
-        <text {...extremaLabelPosition(candleExtrema.low, x, y, plotBottom, 'low')} className={css.extremaLowLabel}>{labels.low ?? '最低'} {formatAxisValue(candleExtrema.low.value)}</text>
+        <text {...extremaLabelPosition(candleExtrema.low, x, y, plotBottom, 'low')} className={css.extremaLowLabel}>{formatAxisValue(candleExtrema.low.value)}</text>
       </>}
       {visibleLabels.map((label, index) => label ? <text key={`${label}-${index}`} x={index === 0 ? PLOT_LEFT : index === 1 ? (PLOT_LEFT + PLOT_RIGHT) / 2 : PLOT_RIGHT} y={AXIS_LABEL_Y} textAnchor={index === 0 ? 'start' : index === 1 ? 'middle' : 'end'} className={css.label}>{formatTimeLabel(label)}</text> : null)}
     </svg>

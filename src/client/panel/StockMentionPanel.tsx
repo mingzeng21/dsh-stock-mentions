@@ -210,7 +210,7 @@ function PanelContent({ data, tab, quote, text }: { data: PanelData; tab: Tab; q
   }
   if (tab === 'day' && 'bars' in data) {
     const bars = data.bars.slice(-30)
-    return <ChartSection title={text.day} summary={<KlineSummary bars={bars} text={text} />}><StockChart mode="candle" bars={bars} previousClose={quote?.quote.previousClose} labels={{ line: text.lineChart, candle: text.candleChart, noData: text.chartNoData, high: text.chartHigh, low: text.chartLow }} /></ChartSection>
+    return <ChartSection title={text.day} summary={<KlineSummary bars={bars} text={text} />}><StockChart mode="candle" bars={bars} previousClose={quote?.quote.previousClose} labels={{ line: text.lineChart, candle: text.candleChart, noData: text.chartNoData }} /></ChartSection>
   }
   if (tab === 'news' && 'items' in data) return <NewsList data={data} noData={text.noData} />
   return <div className={css.status}>{text.noData}</div>
