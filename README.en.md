@@ -15,7 +15,7 @@ Mention a stock name or code in a DSH conversation and it becomes a clickable bu
   <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc-2.png" width="49%" alt="Market sidebar showing company news in dark mode" />
 </p>
 
-<p align="center"><sub>Security extraction · Clickable buttons · Market sidebar · Light and dark themes</sub></p>
+<p align="center"><sub>Security extraction · Clickable buttons · Market sidebar · Theme follows DSH settings</sub></p>
 
 ## What it does
 
@@ -33,7 +33,7 @@ The sidebar presents the security name, market, latest price, change, high, low,
 - **Click to view quotes** — Opens from the right side of DSH Web after a stock button is clicked, with quote data kept at the top.
 - **Intraday and daily charts** — Uses a gradual area fill and right-side price axis for intraday data; daily K-lines cover the latest 30 trading days.
 - **Company news** — Shows the latest 10 items with title, source, and publication time, with Chinese decoding and provider switching handled in the data layer.
-- **Theme and locale** — Follows DSH light/dark themes and supports Chinese and English through DSH `ctx.locale`.
+- **Theme and locale** — Theme follows DSH settings; Chinese and English are provided through DSH `ctx.locale`.
 - **Public data integration** — The Host owns public market requests, response validation, timeouts, cancellation, caching, and provider fallback; no API key is required.
 
 ## How it works
