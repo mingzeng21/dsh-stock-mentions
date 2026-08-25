@@ -6,7 +6,7 @@ Mention a stock name or code in a DSH conversation and it becomes a clickable bu
 
 [中文](README.md) | English
 
-`dsh-stock-mentions` is a DeepSeek Harness plugin that extracts Shanghai and Shenzhen ordinary A-share names and codes from completed assistant replies, then renders confirmed stocks as accessible buttons. Click a button to open a market sidebar on the right side of DSH Web with a quote snapshot, intraday chart, the latest 30 trading days of daily K-lines, and company news.
+`dsh-stock-mentions` is a DeepSeek Harness plugin that extracts Shanghai and Shenzhen ordinary A-share names and codes from DSH output text, then renders confirmed stocks as accessible buttons. Click a button to open a market sidebar on the right side of DSH Web with a quote snapshot, intraday chart, the latest 30 trading days of daily K-lines, and company news.
 
 ## See it in action
 
@@ -19,9 +19,9 @@ Mention a stock name or code in a DSH conversation and it becomes a clickable bu
 
 ## What it does
 
-When a completed DSH assistant reply contains a stock name or code, the plugin:
+When DSH output text contains a stock name or code, the plugin:
 
-1. finds the stock name or code in the assistant Markdown;
+1. finds the stock name or code in the DSH output text;
 2. turns the confirmed stock into a clickable button;
 3. opens the market sidebar when the button is clicked.
 
@@ -29,7 +29,7 @@ The sidebar presents the security name, market, latest price, change, high, low,
 
 ## Features
 
-- **Automatic stock recognition** — Finds stock names and codes in completed assistant replies and adds accessible buttons at their original positions.
+- **Automatic stock recognition** — Finds stock names and codes in DSH output text and adds accessible buttons at their original positions.
 - **Click to view quotes** — Opens from the right side of DSH Web after a stock button is clicked, with quote data kept at the top.
 - **Intraday and daily charts** — Uses a gradual area fill and right-side price axis for intraday data; daily K-lines cover the latest 30 trading days.
 - **Company news** — Shows the latest 10 items with title, source, and publication time, with Chinese decoding and provider switching handled in the data layer.
@@ -39,7 +39,7 @@ The sidebar presents the security name, market, latest price, change, high, low,
 ## How it works
 
 ```text
-Completed assistant reply
+DSH output text
           │
           ▼
 Extract candidates → Host confirms security
@@ -79,7 +79,7 @@ dsh plugin remove dsh-stock-mentions
 
 ## Data and security
 
-- Processes Shanghai and Shenzhen ordinary A-share codes and official short names from completed assistant replies.
+- Processes Shanghai and Shenzhen ordinary A-share codes and official short names from DSH output text.
 - Sends market requests only after the Host confirms a security candidate.
 - Keeps request constraints and response validation in the Host data layer.
 - Keeps market-panel state in the current client session instead of the conversation log.
