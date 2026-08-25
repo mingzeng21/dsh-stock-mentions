@@ -13,7 +13,7 @@ const providerSchema = z.union(['eastmoney', 'tencent', 'sina', 'tonghuashun'] a
 
 export const Config = z.object({
   enabled: z.boolean().default(STOCK_MENTIONS_DEFAULT_CONFIG.enabled),
-  defaultTab: z.union(['intraday', 'day', 'month', 'news'] as const).default(STOCK_MENTIONS_DEFAULT_CONFIG.defaultTab),
+  defaultTab: z.union(['intraday', 'day', 'news'] as const).default(STOCK_MENTIONS_DEFAULT_CONFIG.defaultTab),
   candidateLimit: z.number().step(1).min(1).max(32).default(STOCK_MENTIONS_DEFAULT_CONFIG.candidateLimit),
   cacheMaxEntries: z.number().step(1).min(1).max(4096).default(STOCK_MENTIONS_DEFAULT_CONFIG.cacheMaxEntries),
   cacheTtlMs: z.object({

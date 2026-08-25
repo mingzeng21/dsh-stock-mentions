@@ -13,7 +13,7 @@ export type StockMarket = 'SH' | 'SZ'
 export type StockProvider = 'eastmoney' | 'tencent' | 'sina' | 'tonghuashun'
 export type KlinePeriod = 'day' | 'week' | 'month'
 export type KlineAdjust = 'qfq' | 'none'
-export type StockPanelTab = 'intraday' | 'day' | 'month' | 'news'
+export type StockPanelTab = 'intraday' | 'day' | 'news'
 
 export interface StockSecurity {
   code: string

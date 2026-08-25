@@ -1,9 +1,31 @@
-.axis { stroke: #d9dce1; stroke-width: 1; }
-.grid { stroke: #edf0f3; stroke-width: 1; }
-.previousClose { stroke: #c7a762; stroke-dasharray: 6 5; stroke-width: 1; }
-.line { fill: none; stroke: #17191d; stroke-width: 2.2; }
-.averageLine { fill: none; stroke: #e8a52e; stroke-width: 1.8; }
-.point { fill: #17191d; }
-.up { fill: #e3323a; stroke: #e3323a; }
-.down { fill: #159447; stroke: #159447; }
-.label { fill: #a1a5ad; font-size: 12px; }
+.plotBackground { fill: color-mix(in srgb, var(--dsw-alias-bg-module-platform) 90%, var(--dsw-alias-bg-layer-1)); }
+.plotBorder { fill: none; stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent); stroke-width: 1; }
+.axis { stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.grid { stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 55%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.gridVertical { stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 38%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.previousClose { stroke: var(--dsw-alias-state-warn-primary); stroke-dasharray: 4 4; stroke-width: 1; opacity: .9; vector-effect: non-scaling-stroke; }
+.previousCloseLabel { fill: var(--dsw-alias-state-warn-primary); font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.area { pointer-events: none; }
+.areaUpStart { stop-color: var(--dsw-alias-state-error-primary); stop-opacity: .28; }
+.areaUpMid { stop-color: var(--dsw-alias-state-error-primary); stop-opacity: .13; }
+.areaUpEnd { stop-color: var(--dsw-alias-state-error-primary); stop-opacity: .025; }
+.areaDownStart { stop-color: var(--dsw-alias-state-success-primary); stop-opacity: .34; }
+.areaDownMid { stop-color: var(--dsw-alias-state-success-primary); stop-opacity: .16; }
+.areaDownEnd { stop-color: var(--dsw-alias-state-success-primary); stop-opacity: .03; }
+.lineUp, .lineDown { fill: none; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.lineUp { stroke: var(--dsw-alias-state-error-primary); }
+.lineDown { stroke: var(--dsw-alias-state-success-primary); }
+.averageLine { fill: none; stroke: var(--dsw-alias-state-business-primary); stroke-width: 1.2; stroke-dasharray: 3 3; opacity: .72; vector-effect: non-scaling-stroke; }
+.pointUp { fill: var(--dsw-alias-state-error-primary); stroke: var(--dsw-alias-bg-module-platform); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.pointDown { fill: var(--dsw-alias-state-success-primary); stroke: var(--dsw-alias-bg-module-platform); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.wickUp, .wickDown { fill: none; stroke-width: 1.1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.wickUp { stroke: var(--dsw-alias-state-error-primary); }
+.wickDown { stroke: var(--dsw-alias-state-success-primary); }
+.candleUp, .candleDown { stroke-width: .8; vector-effect: non-scaling-stroke; }
+.candleUp { fill: var(--dsw-alias-state-error-primary); stroke: var(--dsw-alias-state-error-primary); }
+.candleDown { fill: var(--dsw-alias-state-success-primary); stroke: var(--dsw-alias-state-success-primary); }
+.volumeBaseline { stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 70%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.volumeUp, .volumeDown { opacity: .3; }
+.volumeUp { fill: var(--dsw-alias-state-error-primary); }
+.volumeDown { fill: var(--dsw-alias-state-success-primary); }
+.label, .yLabel { fill: var(--dsw-alias-label-tertiary); font-size: 11px; font-variant-numeric: tabular-nums; }

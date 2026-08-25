@@ -73,7 +73,7 @@ export class PublicStockApi implements SecuritySearchProvider {
     if (provider === 'eastmoney') return this.eastmoneyKline(security, period, adjust, signal)
     if (provider === 'tencent') return this.tencentKline(security, period, adjust, signal)
     if (provider === 'sina') return this.sinaKline(security, period, signal)
-    return this.tonghuashunKline(security, signal)
+    return this.tonghuashunKline(security, period, signal)
   }
 
   async news(security: StockSecurity, provider: StockProvider, limit: number, signal: AbortSignal): Promise<SourceNews> {
@@ -116,7 +116,8 @@ export class PublicStockApi implements SecuritySearchProvider {
         change: numberOrNull(fields[31]), changePercent: numberOrNull(fields[32]),
         open: numberOrNull(fields[5]), high: numberOrNull(fields[33]), low: numberOrNull(fields[34]),
         volumeShares: multiply(numberOrNull(fields[6]), 100),
-        amount: multiply(amountTenThousand, 10_000), marketCap: null, volumeRatio: null,
+        amount: multiply(amountTenThousand, 10_000),
+        marketCap: multiply(numberOrNull(fields[45]), 100_000_000), volumeRatio: null,
         turnoverRate: numberOrNull(fields[38]),
         marketTime: stringOrNull(fields[30]),
       },
@@ -177,30 +178,32 @@ export class PublicStockApi implements SecuritySearchProvider {
   }
 
   private async eastmoneyKline(security: StockSecurity, period: KlinePeriod, adjust: KlineAdjust, signal: AbortSignal): Promise<SourceKline> {
+    const limit = period === 'day' ? 30 : 120
     const value = await this.requestJson('eastmoney', eastmoneyUrl('/api/qt/stock/kline/get', {
       secid: eastmoneySecid(security), klt: period === 'day' ? 101 : period === 'week' ? 102 : 103,
-      fqt: adjust === 'qfq' ? 1 : 0, lmt: 120,
+      fqt: adjust === 'qfq' ? 1 : 0, lmt: limit,
       fields1: 'f1,f2,f3,f4,f5,f6', fields2: 'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61',
     }), signal)
     const rows = arrayAt(recordAt(value, ['data']), ['klines'])
     if (rows === undefined) throw new StockMentionsError('东方财富 K 线响应无效。')
-    const bars = rows.flatMap(row => typeof row !== 'string' ? [] : parseKlineRow(row)).slice(-120)
+    const bars = rows.flatMap(row => typeof row !== 'string' ? [] : parseKlineRow(row)).slice(-limit)
     return { source: 'eastmoney', bars }
   }
 
   private async tencentKline(security: StockSecurity, period: KlinePeriod, adjust: KlineAdjust, signal: AbortSignal): Promise<SourceKline> {
-    const param = `${exchangeSymbol(security)},${period},,,120,${adjust === 'qfq' ? 'qfq' : ''}`
+    const limit = period === 'day' ? 30 : 120
+    const param = `${exchangeSymbol(security)},${period},,,${limit},${adjust === 'qfq' ? 'qfq' : ''}`
     const value = await this.requestJson('tencent', new URL(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${encodeURIComponent(param)}`), signal)
     const rows = findStringArrays(value).find(items => items.some(item => item.split(',').length >= 6))
     if (rows === undefined) throw new StockMentionsError('腾讯 K 线响应无效。')
-    return { source: 'tencent', bars: rows.flatMap(parseKlineRow).slice(-120) }
+    return { source: 'tencent', bars: rows.flatMap(parseKlineRow).slice(-limit) }
   }
 
   private async sinaKline(security: StockSecurity, period: KlinePeriod, signal: AbortSignal): Promise<SourceKline> {
     const scale = period === 'day' ? 240 : period === 'week' ? 1_008 : 4_320
     const url = new URL('https://quotes.sina.cn/cn/api/json_v2.php/CN_MarketDataService.getKLineData')
     url.searchParams.set('symbol', exchangeSymbol(security)); url.searchParams.set('scale', String(scale))
-    url.searchParams.set('ma', 'no'); url.searchParams.set('datalen', '120')
+    url.searchParams.set('ma', 'no'); url.searchParams.set('datalen', period === 'day' ? '30' : '120')
     const value = await this.requestJson('sina', url, signal)
     const rows = arrayValue(value)
     if (rows === undefined) throw new StockMentionsError('新浪 K 线响应无效。')
@@ -208,14 +211,14 @@ export class PublicStockApi implements SecuritySearchProvider {
       time: stringOrNull(row.day) ?? stringOrNull(row.date) ?? '', open: numberOrNull(row.open),
       high: numberOrNull(row.high), low: numberOrNull(row.low), close: numberOrNull(row.close),
       volumeShares: numberOrNull(row.volume), amount: numberOrNull(row.amount),
-    }] : []).filter(bar => bar.time !== '').slice(-120) }
+    }] : []).filter(bar => bar.time !== '').slice(-(period === 'day' ? 30 : 120)) }
   }
 
-  private async tonghuashunKline(security: StockSecurity, signal: AbortSignal): Promise<SourceKline> {
+  private async tonghuashunKline(security: StockSecurity, period: KlinePeriod, signal: AbortSignal): Promise<SourceKline> {
     const value = await this.requestJson('tonghuashun', new URL(`https://d.10jqka.com.cn/v6/line/${exchangeSymbol(security)}/01/last.js`), signal)
     const rows = findStringArrays(value).find(items => items.some(item => item.split(',').length >= 6))
     if (rows === undefined) throw new StockMentionsError('同花顺 K 线响应无效。')
-    return { source: 'tonghuashun', bars: rows.flatMap(parseKlineRow).slice(-120) }
+    return { source: 'tonghuashun', bars: rows.flatMap(parseKlineRow).slice(-(period === 'day' ? 30 : 120)) }
   }
 
   private async tencentNews(security: StockSecurity, limit: number, signal: AbortSignal): Promise<SourceNews> {
@@ -229,7 +232,9 @@ export class PublicStockApi implements SecuritySearchProvider {
 
   private async sinaNews(security: StockSecurity, limit: number, signal: AbortSignal): Promise<SourceNews> {
     const url = new URL(`https://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/${exchangeSymbol(security)}.phtml`)
-    const text = await this.requestText('sina', url, signal, 'utf-8')
+    // Sina's stock-news HTML is served in GBK. Decoding it as UTF-8 turns
+    // Chinese titles into replacement characters before the HTML parser sees them.
+    const text = await this.requestText('sina', url, signal, 'gbk')
     const items = parseHtmlNews(text, limit)
     if (items.length === 0) throw new StockMentionsError('新浪资讯响应无效。')
     return { source: 'sina', items }
@@ -305,11 +310,12 @@ function newsItems(value: unknown, limit: number): StockNewsItem[] {
 }
 
 function parseHtmlNews(text: string, limit: number): StockNewsItem[] {
+  const newsSection = /<div\b[^>]*class\s*=\s*["'][^"']*\bdatelist\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/iu.exec(text)?.[1] ?? ''
   const items: StockNewsItem[] = []
-  for (const match of text.matchAll(/<a[^>]+href="([^"]+)"[^>]*>([^<]{4,200})<\/a>/giu)) {
-    const title = stripHtml(match[2]!).trim()
+  for (const match of newsSection.matchAll(/<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/giu)) {
+    const title = decodeHtmlEntities(stripHtml(match[3]!)).replace(/\s+/gu, ' ').trim()
     if (title === '') continue
-    items.push({ id: match[1]!, title, publishedAt: new Date().toISOString(), source: '新浪财经', summary: '', url: safeNewsUrl(match[1]!) })
+    items.push({ id: match[2]!, title, publishedAt: new Date().toISOString(), source: '新浪财经', summary: '', url: safeNewsUrl(match[2]!) })
     if (items.length >= limit) break
   }
   return items
@@ -364,6 +370,16 @@ function numberOrNull(value: unknown): number | null {
 function multiply(value: number | null, by: number): number | null { return value === null ? null : value * by }
 function decodeJsString(value: string): string { try { return JSON.parse(`"${value}"`) as string } catch { return value } }
 function stripHtml(value: string): string { return value.replace(/<[^>]*>/gu, '') }
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&nbsp;|&#160;/giu, ' ')
+    .replace(/&amp;/giu, '&')
+    .replace(/&quot;/giu, '"')
+    .replace(/&lt;/giu, '<')
+    .replace(/&gt;/giu, '>')
+    .replace(/&#(\d+);/gu, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([\da-f]+);/giu, (_, code: string) => String.fromCodePoint(Number.parseInt(code, 16)))
+}
 function safeNewsUrl(value: string | null): string | undefined {
   if (value === null) return undefined
   try {

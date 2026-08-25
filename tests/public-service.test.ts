@@ -55,6 +55,24 @@ describe('PublicStockApi news normalization', () => {
     })
     expect(result.items[1]).not.toHaveProperty('url')
   })
+
+  it('decodes GBK Sina stock-news pages without replacement characters', async () => {
+    const html = Uint8Array.from([
+      ...new TextEncoder().encode('<nav><a href="/home">Home</a></nav><div class="datelist"><ul><li>2026-08-24 <a target=\'_blank\' href=\'https://finance.sina.com.cn/news/1\'>'),
+      196, 254, 178, 168, 210, 248, 208, 208, 183, 162, 178, 188, 185, 171, 184, 230,
+      ...new TextEncoder().encode('</a></li></ul></div>'),
+    ])
+    const api = new PublicStockApi({
+      fetcher: async () => new Response(html, { status: 200, headers: { 'content-type': 'text/html' } }),
+    })
+
+    const result = await api.news({
+      code: '002142', market: 'SZ', symbol: '002142.SZ', name: '宁波银行', exchange: 'SZSE',
+    }, 'sina', 10, new AbortController().signal)
+
+    expect(result.items[0]?.title).toBe('宁波银行发布公告')
+    expect(result.items[0]?.title).not.toContain('�')
+  })
 })
 
 describe('PublicStockApi quote normalization', () => {
@@ -81,5 +99,41 @@ describe('PublicStockApi quote normalization', () => {
     })
     expect(requests[0]?.searchParams.get('fields')).toContain('f50')
     expect(requests[0]?.searchParams.get('fields')).toContain('f116')
+  })
+
+  it('reads Tencent market cap from the documented quote fields', async () => {
+    const fields = Array.from({ length: 49 }, () => '')
+    fields[3] = '33.90'
+    fields[4] = '34.06'
+    fields[45] = '123.45'
+    const api = new PublicStockApi({
+      fetcher: async () => new Response(`v_sz002142="${fields.join('~')}";`, { status: 200 }),
+    })
+
+    await expect(api.quote({
+      code: '002142', market: 'SZ', symbol: '002142.SZ', name: '宁波银行', exchange: 'SZSE',
+    }, 'tencent', new AbortController().signal)).resolves.toMatchObject({
+      source: 'tencent', quote: { marketCap: 12_345_000_000 },
+    })
+  })
+})
+
+describe('PublicStockApi K-line limits', () => {
+  it('requests and returns only the latest 30 daily bars', async () => {
+    const requests: URL[] = []
+    const api = new PublicStockApi({
+      fetcher: async input => {
+        requests.push(new URL(String(input)))
+        return new Response(JSON.stringify({ data: { klines: Array.from({ length: 35 }, (_, index) => `2026-07-${String(index + 1).padStart(2, '0')},10,11,12,9,100,1000`) } }), { status: 200 })
+      },
+    })
+
+    const result = await api.kline({
+      code: '002142', market: 'SZ', symbol: '002142.SZ', name: '宁波银行', exchange: 'SZSE',
+    }, 'day', 'qfq', 'eastmoney', new AbortController().signal)
+
+    expect(requests[0]?.searchParams.get('lmt')).toBe('30')
+    expect(result.bars).toHaveLength(30)
+    expect(result.bars[0]?.time).toBe('2026-07-06')
   })
 })

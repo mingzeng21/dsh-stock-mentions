@@ -1,26 +1,95 @@
 # dsh-stock-mentions
 
-`dsh-stock-mentions` 是一个独立的 DeepSeek Harness 插件：它在已结算的助手普通 Markdown 中识别经 Host 确认的沪深普通 A 股证券代码和规范简称，并把这些范围渲染为可访问按钮。点击按钮后，根级 `shell.overlay` 面板以同花顺风格展示常驻报价头部、默认分时图、日／月 K 线和个股资讯；面板只读，不展示委托、五档盘口或成交明细。
+你在 DSH 对话中提到的股票名称或股票代码，会自动变成可点击按钮——点一下，行情和资讯就在右侧侧边栏展开。
 
-## 已实现范围
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
 
-- Host 侧通过独立的 `/stock-mentions` RPC channel 访问东方财富、腾讯、新浪和同花顺的公开接口；不需要授权、Cookie、API key 或其他服务凭据。
-- Client 只提交候选词，不把助手全文或任意 URL 发送给上游；客户端不直接访问行情网站。
-- 只接受当前唯一匹配的沪深普通 A 股；指数、基金、ETF、债券、B 股、北交所证券、别名和歧义简称保持普通文本。
-- 只处理已结算助手的段落、列表、表格单元格和精确行内代码；链接、围栏代码、数学公式、原始 HTML、流式文本、用户消息、reasoning 和工具结果不交互。
-- 面板按当前会话管理选择，tab 懒加载、手动刷新、请求取消和数据源降级提示；不提供交易、自选、持仓、投资建议或模型工具。
+中文 | [English](README.en.md)
 
-## 独立性
+`dsh-stock-mentions` 是一个 DeepSeek Harness 插件。它会从已完成的助手回复中识别沪深普通 A 股的股票名称和股票代码，把识别到的内容直接变成可访问按钮。点击按钮后，DSH Web 右侧会展开行情侧边栏，展示报价概览、分时图、最近 30 个交易日的日 K 线和个股资讯。
 
-本插件在 package、manifest、RPC、Host service 和 Client UI 层都独立于 `dsh-stock-market`。实现可以参考公开数据适配和请求控制方法，但不会导入其包、注入其服务、注册其 RPC 或注册 Agent 工具。
+## 先看效果
 
-## 开发
+<p align="center">
+  <img src="docs/screenshots/sc1.png" width="49%" alt="白天模式下，证券按钮和行情侧边栏" />
+  <img src="docs/screenshots/sc-2.png" width="49%" alt="黑夜模式下，行情侧边栏展示个股资讯" />
+</p>
 
-```sh
-node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit
-node node_modules/typescript/bin/tsc -p tsconfig.test.json --noEmit
-NODE_ENV=test node node_modules/vitest/vitest.mjs run tests
-npm run build
+<p align="center"><sub>证券提取 · 可点击按钮 · 行情侧边栏 · 白天与黑夜主题</sub></p>
+
+## 它能帮你做什么
+
+只要助手在 DSH 对话中提到股票名称或股票代码，插件就会自动完成：
+
+1. 找到回复里的股票名称和股票代码；
+2. 将确认后的内容变成可点击按钮；
+3. 点击按钮，在右侧侧边栏查看这只股票的行情和资讯。
+
+侧边栏集中展示证券名称、市场、最新价、涨跌、最高、最低、开盘、市值、量比、换手率、成交额、成交量、昨收、分时走势、日 K 线和个股资讯。
+
+## 特性
+
+- **自动识别股票** —— 自动识别已完成助手回复中的股票名称和股票代码，并在原文位置提供可访问按钮。
+- **点击查看行情** —— 点击股票按钮后，从 DSH Web 右侧展开面板，报价信息固定在顶部。
+- **分时与日 K** —— 分时图使用渐进色面积和右侧价格轴；日 K 展示最近 30 个交易日。
+- **个股资讯** —— 展示最新 10 条资讯，包含标题、来源和发布时间，并处理中文编码与数据源切换。
+- **主题与语言** —— 跟随 DSH 白天/黑夜主题，通过 DSH `ctx.locale` 支持中文和英文。
+- **公开数据接入** —— Host 侧统一处理公开行情接口、响应校验、超时、取消、缓存和数据源降级，无需配置 API Key。
+
+## 工作原理
+
+```text
+已完成的助手回复
+        │
+        ▼
+提取证券候选 → Host 确认证券
+        │
+        ▼
+证券提及按钮 → 点击打开行情侧边栏
+        │
+        ▼
+报价 · 分时 · 日 K · 资讯
 ```
 
-详细设计、协议、数据源顺序、缓存 TTL 和测试边界见 [`docs/design.md`](docs/design.md)。
+浏览器端通过 `/stock-mentions` RPC channel 获取 Host 侧归一化后的数据，证券解析和行情数据适配集中在独立的数据层中。
+
+## 安装
+
+从 npm 安装插件：
+
+```sh
+dsh plugin add dsh-stock-mentions
+```
+
+## 更新
+
+重新执行 `add` 命令即可获取最新版：
+
+```sh
+dsh plugin add dsh-stock-mentions
+```
+
+更新后重启 Harness（`dsh web`）或刷新 DSH Web UI。
+
+## 卸载
+
+```sh
+dsh plugin remove dsh-stock-mentions
+```
+
+## 数据与安全
+
+- 只处理已完成助手回复中的沪深普通 A 股证券代码和规范简称。
+- 证券候选经过 Host 确认后才会进入行情请求。
+- 请求参数经过限制和响应校验，数据源由 Host 统一管理。
+- 行情面板状态保留在当前会话的客户端状态中，不写入会话日志。
+- 不需要 API Key、Cookie、Authorization 或其他服务凭据。
+
+## 环境要求
+
+- [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（`dsh`）
+- Node.js ≥ 22.19.0
+
+## 许可证
+
+[MIT](LICENSE) © 2026 dsh-stock-mentions contributors

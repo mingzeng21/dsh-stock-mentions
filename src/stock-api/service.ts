@@ -40,9 +40,9 @@ export class StockDataService {
     return this.resolver.resolve(candidates, signal)
   }
 
-  quote(symbol: string, signal: AbortSignal): Promise<StockQuoteResponse> {
+  async quote(symbol: string, signal: AbortSignal): Promise<StockQuoteResponse> {
     const security = securityFromSymbol(symbol)
-    return this.withFallback(this.options.providerOrder.quote, signal,
+    const response = await this.withFallback(this.options.providerOrder.quote, signal,
       provider => this.api.quote(security, provider, signal),
       result => ({
         protocolVersion: STOCK_MENTIONS_RPC_PROTOCOL_VERSION,
@@ -50,6 +50,26 @@ export class StockDataService {
         quote: result.quote,
         meta: this.meta(result.source),
       }))
+    return this.enrichQuote(response, security, signal)
+  }
+
+  private async enrichQuote(response: StockQuoteResponse, security: StockSecurity, signal: AbortSignal): Promise<StockQuoteResponse> {
+    if (response.quote.marketCap !== null && response.quote.volumeRatio !== null) return response
+    try {
+      const supplement = await this.api.quote(security, 'eastmoney', signal)
+      const marketCap = response.quote.marketCap ?? supplement.quote.marketCap
+      const volumeRatio = response.quote.volumeRatio ?? supplement.quote.volumeRatio
+      if (marketCap === response.quote.marketCap && volumeRatio === response.quote.volumeRatio) return response
+      const warnings = [response.meta.warning, '市值、量比字段已由东方财富补齐。'].filter((value): value is string => value !== undefined)
+      return {
+        ...response,
+        quote: { ...response.quote, marketCap, volumeRatio },
+        meta: { ...response.meta, warning: warnings.join(' ') },
+      }
+    } catch (error) {
+      if (error instanceof StockMentionsError && error.code === 'cancelled') throw error
+      return response
+    }
   }
 
   intraday(symbol: string, signal: AbortSignal): Promise<StockIntradayResponse> {
