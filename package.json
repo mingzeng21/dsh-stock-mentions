@@ -1,6 +1,6 @@
 {
   "name": "dsh-stock-mentions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Turn stock mentions in DSH assistant replies into clickable quote and news buttons.",
   "license": "MIT",
   "keywords": [
