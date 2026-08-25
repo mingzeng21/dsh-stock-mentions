@@ -55,7 +55,7 @@
 
 ## 安装
 
-从 npm 安装插件：
+从 [npm 包页面](https://www.npmjs.com/package/dsh-stock-mentions) 安装插件：
 
 ```sh
 dsh plugin add dsh-stock-mentions

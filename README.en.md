@@ -55,7 +55,7 @@ The browser client receives normalized data through the `/stock-mentions` RPC ch
 
 ## Install
 
-Install the plugin from npm:
+Install the plugin from the [npm package page](https://www.npmjs.com/package/dsh-stock-mentions):
 
 ```sh
 dsh plugin add dsh-stock-mentions
