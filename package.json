@@ -1,8 +1,24 @@
 {
   "name": "dsh-stock-mentions",
   "version": "0.1.0",
-  "description": "DSH settled assistant Markdown annotations for Shanghai and Shenzhen A-shares",
+  "description": "Turn stock mentions in DSH assistant replies into clickable quote and news buttons.",
   "license": "MIT",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "stock",
+    "a-share",
+    "market-data",
+    "plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mingzeng21/dsh-stock-mentions.git"
+  },
+  "homepage": "https://github.com/mingzeng21/dsh-stock-mentions#readme",
+  "bugs": {
+    "url": "https://github.com/mingzeng21/dsh-stock-mentions/issues"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -33,6 +49,7 @@
     "build": "tsc -p tsconfig.json && tsdown --config tsdown.config.ts",
     "verify:package": "node scripts/verify-package.mjs",
     "verify": "npm run typecheck && npm run test && npm run build && npm run verify:package",
+    "prepublishOnly": "npm run verify",
     "clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\""
   },
   "engines": { "node": ">=22.19.0" },
@@ -73,5 +90,5 @@
     "typescript": "6.0.3",
     "vitest": "4.1.8"
   },
-  "files": ["lib", "cordis.patch.yml", "README.md", "README.en.md", "CONTEXT.md", "docs", "LICENSE"]
+  "files": ["lib", "cordis.patch.yml", "README.md", "README.en.md", "LICENSE"]
 }

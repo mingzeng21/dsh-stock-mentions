@@ -2,7 +2,7 @@
 
 Mention a stock name or code in a DSH conversation and it becomes a clickable button—click once to open quotes and company news in the right sidebar.
 
-[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
 
 [中文](README.md) | English
 
@@ -11,8 +11,8 @@ Mention a stock name or code in a DSH conversation and it becomes a clickable bu
 ## See it in action
 
 <p align="center">
-  <img src="docs/screenshots/sc1.png" width="49%" alt="Security buttons and market sidebar in light mode" />
-  <img src="docs/screenshots/sc-2.png" width="49%" alt="Market sidebar showing company news in dark mode" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc1.png" width="49%" alt="Security buttons and market sidebar in light mode" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc-2.png" width="49%" alt="Market sidebar showing company news in dark mode" />
 </p>
 
 <p align="center"><sub>Security extraction · Clickable buttons · Market sidebar · Light and dark themes</sub></p>

@@ -2,7 +2,7 @@
 
 你在 DSH 对话中提到的股票名称或股票代码，会自动变成可点击按钮——点一下，行情和资讯就在右侧侧边栏展开。
 
-[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
 
 中文 | [English](README.en.md)
 
@@ -11,8 +11,8 @@
 ## 先看效果
 
 <p align="center">
-  <img src="docs/screenshots/sc1.png" width="49%" alt="白天模式下，证券按钮和行情侧边栏" />
-  <img src="docs/screenshots/sc-2.png" width="49%" alt="黑夜模式下，行情侧边栏展示个股资讯" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc1.png" width="49%" alt="白天模式下，证券按钮和行情侧边栏" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc-2.png" width="49%" alt="黑夜模式下，行情侧边栏展示个股资讯" />
 </p>
 
 <p align="center"><sub>证券提取 · 可点击按钮 · 行情侧边栏 · 白天与黑夜主题</sub></p>
