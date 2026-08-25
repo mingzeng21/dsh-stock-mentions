@@ -5,6 +5,15 @@
 .gridVertical { stroke: color-mix(in srgb, var(--dsw-alias-border-l2) 38%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .previousClose { stroke: var(--dsw-alias-state-warn-primary); stroke-dasharray: 4 4; stroke-width: 1; opacity: .9; vector-effect: non-scaling-stroke; }
 .previousCloseLabel { fill: var(--dsw-alias-state-warn-primary); font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.extremaHighGuide, .extremaLowGuide { stroke-width: 1; stroke-dasharray: 2 4; opacity: .34; vector-effect: non-scaling-stroke; }
+.extremaHighGuide { stroke: var(--dsw-alias-state-error-primary); }
+.extremaLowGuide { stroke: var(--dsw-alias-state-success-primary); }
+.extremaHighPoint, .extremaLowPoint { stroke: var(--dsw-alias-bg-module-platform); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.extremaHighPoint { fill: var(--dsw-alias-state-error-primary); }
+.extremaLowPoint { fill: var(--dsw-alias-state-success-primary); }
+.extremaHighLabel, .extremaLowLabel { font-size: 10px; font-weight: 650; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--dsw-alias-bg-module-platform); stroke-width: 3px; stroke-linejoin: round; }
+.extremaHighLabel { fill: var(--dsw-alias-state-error-primary); }
+.extremaLowLabel { fill: var(--dsw-alias-state-success-primary); }
 .area { pointer-events: none; }
 .areaUpStart { stop-color: var(--dsw-alias-state-error-primary); stop-opacity: .28; }
 .areaUpMid { stop-color: var(--dsw-alias-state-error-primary); stop-opacity: .13; }

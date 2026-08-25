@@ -15,12 +15,14 @@ const VOLUME_TOP = 258
 const VOLUME_BOTTOM = 282
 const AXIS_LABEL_Y = HEIGHT - 11
 
-export function StockChart({ points, bars, previousClose, mode, labels = { line: '分时走势', candle: 'K 线走势', noData: '暂无图表数据' } }: {
+type CandleExtremum = { value: number; index: number }
+
+export function StockChart({ points, bars, previousClose, mode, labels = { line: '分时走势', candle: 'K 线走势', noData: '暂无图表数据', high: '最高', low: '最低' } }: {
   points?: readonly StockIntradayPoint[]
   bars?: readonly StockKlineBar[]
   previousClose?: number | null
   mode: 'line' | 'candle'
-  labels?: { line: string; candle: string; noData: string }
+  labels?: { line: string; candle: string; noData: string; high?: string; low?: string }
 }) {
   const instanceId = useId().replace(/:/gu, '')
   const gradientId = `stock-area-${instanceId}`
@@ -41,6 +43,7 @@ export function StockChart({ points, bars, previousClose, mode, labels = { line:
   const max = dataMax + padding
   const range = max - min
   const plotBottom = mode === 'line' ? LINE_PLOT_BOTTOM : CANDLE_PLOT_BOTTOM
+  const candleExtrema = mode === 'candle' ? findCandleExtrema(candleBars) : null
   const pointCount = mode === 'line' ? linePoints.length : candleBars.length
   const x = (index: number) => pointCount <= 1
     ? PLOT_LEFT + (PLOT_RIGHT - PLOT_LEFT) / 2
@@ -89,6 +92,10 @@ export function StockChart({ points, bars, previousClose, mode, labels = { line:
         <line x1={PLOT_LEFT} y1={y(previousClose)} x2={PLOT_RIGHT} y2={y(previousClose)} className={css.previousClose} />
         <text x={WIDTH - 4} y={clamp(y(previousClose) + 1, PLOT_TOP + 8, plotBottom - 5)} textAnchor="end" dominantBaseline="middle" className={css.previousCloseLabel}>{formatAxisValue(previousClose)}</text>
       </>}
+      {mode === 'candle' && candleExtrema !== null && <>
+        <line x1={PLOT_LEFT} y1={y(candleExtrema.high.value)} x2={PLOT_RIGHT} y2={y(candleExtrema.high.value)} className={css.extremaHighGuide} />
+        <line x1={PLOT_LEFT} y1={y(candleExtrema.low.value)} x2={PLOT_RIGHT} y2={y(candleExtrema.low.value)} className={css.extremaLowGuide} />
+      </>}
       <g clipPath={`url(#${clipId})`}>
         {mode === 'line' && linePath !== '' && <>
           {areaPaths.map((areaPath, index) => <path key={`area-${index}`} d={areaPath} fill={`url(#${gradientId})`} className={css.area} />)}
@@ -120,6 +127,12 @@ export function StockChart({ points, bars, previousClose, mode, labels = { line:
           </g>
         })}
       </g>
+      {mode === 'candle' && candleExtrema !== null && <>
+        <circle cx={x(candleExtrema.high.index)} cy={y(candleExtrema.high.value)} r="2.5" className={css.extremaHighPoint} />
+        <text {...extremaLabelPosition(candleExtrema.high, x, y, plotBottom, 'high')} className={css.extremaHighLabel}>{labels.high ?? '最高'} {formatAxisValue(candleExtrema.high.value)}</text>
+        <circle cx={x(candleExtrema.low.index)} cy={y(candleExtrema.low.value)} r="2.5" className={css.extremaLowPoint} />
+        <text {...extremaLabelPosition(candleExtrema.low, x, y, plotBottom, 'low')} className={css.extremaLowLabel}>{labels.low ?? '最低'} {formatAxisValue(candleExtrema.low.value)}</text>
+      </>}
       {visibleLabels.map((label, index) => label ? <text key={`${label}-${index}`} x={index === 0 ? PLOT_LEFT : index === 1 ? (PLOT_LEFT + PLOT_RIGHT) / 2 : PLOT_RIGHT} y={AXIS_LABEL_Y} textAnchor={index === 0 ? 'start' : index === 1 ? 'middle' : 'end'} className={css.label}>{formatTimeLabel(label)}</text> : null)}
     </svg>
   )
@@ -173,6 +186,30 @@ function lastNonNullIndex(values: readonly (number | null)[]): number {
     if (values[index] !== null) return index
   }
   return -1
+}
+
+function findCandleExtrema(bars: readonly (StockKlineBar & { close: number })[]): { high: CandleExtremum; low: CandleExtremum } | null {
+  if (bars.length === 0) return null
+  let high: CandleExtremum = { value: -Infinity, index: 0 }
+  let low: CandleExtremum = { value: Infinity, index: 0 }
+  bars.forEach((bar, index) => {
+    const open = bar.open ?? bar.close
+    const barHigh = bar.high ?? Math.max(open, bar.close)
+    const barLow = bar.low ?? Math.min(open, bar.close)
+    if (barHigh >= high.value) high = { value: barHigh, index }
+    if (barLow <= low.value) low = { value: barLow, index }
+  })
+  return { high, low }
+}
+
+function extremaLabelPosition(extremum: CandleExtremum, x: (index: number) => number, y: (value: number) => number, plotBottom: number, kind: 'high' | 'low'): { x: number; y: number; textAnchor: 'start' | 'end' } {
+  const markerX = x(extremum.index)
+  const textAnchor = markerX > (PLOT_LEFT + PLOT_RIGHT) / 2 ? 'end' : 'start'
+  const labelX = clamp(markerX + (textAnchor === 'start' ? 7 : -7), PLOT_LEFT + 4, PLOT_RIGHT - 4)
+  const labelY = kind === 'high'
+    ? clamp(y(extremum.value) - 8, PLOT_TOP + 9, plotBottom - 5)
+    : clamp(y(extremum.value) + 12, PLOT_TOP + 9, plotBottom - 5)
+  return { x: labelX, y: labelY, textAnchor }
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {

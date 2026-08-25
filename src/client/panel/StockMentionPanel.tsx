@@ -24,7 +24,7 @@ function createText(t: Translator) {
     marketCap: t('marketCap'), volumeRatio: t('volumeRatio'), turnover: t('turnover'), amount: t('amount'), volume: t('volume'),
     previousClose: t('previousClose'), marketTime: t('marketTime'), qfq: t('qfq'), source: t('source'), fetched: t('fetched'),
     warning: t('warning'), panel: t('panel'), lineChart: t('lineChart'), candleChart: t('candleChart'),
-    chartNoData: t('chartNoData'), average: t('average'), quoteLoading: t('quoteLoading'), quoteError: t('quoteError'),
+    chartNoData: t('chartNoData'), average: t('average'), chartHigh: t('chartHigh'), chartLow: t('chartLow'), quoteLoading: t('quoteLoading'), quoteError: t('quoteError'),
     marketSH: t('marketSH'), marketSZ: t('marketSZ'), recent30: t('recent30'),
     units: { trillion: t('unitTrillion'), hundredMillion: t('unitHundredMillion'), tenThousand: t('unitTenThousand') },
     sourceLabels: {
@@ -209,7 +209,8 @@ function PanelContent({ data, tab, quote, text }: { data: PanelData; tab: Tab; q
     return <ChartSection title={text.intraday} summary={<ChartSummary quote={quote} point={last?.price ?? null} average={last?.averagePrice ?? null} text={text} />}><StockChart mode="line" points={data.points} previousClose={data.previousClose ?? quote?.quote.previousClose ?? null} labels={{ line: text.lineChart, candle: text.candleChart, noData: text.chartNoData }} /></ChartSection>
   }
   if (tab === 'day' && 'bars' in data) {
-    return <ChartSection title={text.day} summary={<span className={css.chartMode}>{text.qfq} · {text.recent30}</span>}><StockChart mode="candle" bars={data.bars.slice(-30)} previousClose={quote?.quote.previousClose} labels={{ line: text.lineChart, candle: text.candleChart, noData: text.chartNoData }} /></ChartSection>
+    const bars = data.bars.slice(-30)
+    return <ChartSection title={text.day} summary={<KlineSummary bars={bars} text={text} />}><StockChart mode="candle" bars={bars} previousClose={quote?.quote.previousClose} labels={{ line: text.lineChart, candle: text.candleChart, noData: text.chartNoData, high: text.chartHigh, low: text.chartLow }} /></ChartSection>
   }
   if (tab === 'news' && 'items' in data) return <NewsList data={data} noData={text.noData} />
   return <div className={css.status}>{text.noData}</div>
@@ -224,6 +225,18 @@ function ChartSummary({ quote, point, average, text }: { quote?: StockQuoteRespo
   const change = quote?.quote.change ?? deriveChange(current, quote?.quote.previousClose ?? null)
   const tone = toneClass(change)
   return <span className={css.chartSummary}><b className={tone}>{text.latest} {formatPrice(current)}</b><em className={tone}>{text.change} {formatSigned(change)}</em><span>{text.average} {formatPrice(average)}</span></span>
+}
+
+function KlineSummary({ bars, text }: { bars: readonly StockKlineResponse['bars'][number][]; text: Text }) {
+  const validBars = bars.filter(bar => bar.close !== null)
+  if (validBars.length === 0) return <span className={css.chartMode}>{text.qfq} · {text.recent30}</span>
+  const high = Math.max(...validBars.map(bar => bar.high ?? Math.max(bar.open ?? bar.close!, bar.close!)))
+  const low = Math.min(...validBars.map(bar => bar.low ?? Math.min(bar.open ?? bar.close!, bar.close!)))
+  return <span className={css.chartSummary}>
+    <span>{text.qfq} · {text.recent30}</span>
+    <b className={css.up}>{text.chartHigh} {formatPrice(high)}</b>
+    <b className={css.down}>{text.chartLow} {formatPrice(low)}</b>
+  </span>
 }
 
 function NewsList({ data, noData }: { data: StockNewsResponse; noData: string }) {
