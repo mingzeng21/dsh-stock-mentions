@@ -1,9 +1,8 @@
-import type { ConnectionHandle, MessageId } from '@deepseek-ai/dsh-client-connection/client'
-import type { SessionId } from '@deepseek-ai/dsh-client-runtime/client'
+import type { ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client'
 import type {
   AssistantTextAnnotations, ChatTextAnnotations, ChatTextAnnotationsSnapshot,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { MarkdownTextAnnotation } from '@deepseek-ai/dsh-client-ui-primitives'
+  MarkdownTextAnnotation,
+} from './annotation-contract.ts'
 import {
   isResolveMentionsResponse, STOCK_MENTIONS_RESOLVE_ENDPOINT,
   STOCK_MENTIONS_RPC_CHANNEL, STOCK_MENTIONS_RPC_PROTOCOL_VERSION,
@@ -30,25 +29,25 @@ interface SessionState {
 /** Client-side candidate extraction and settled-text annotation projection. */
 export class StockMentionAnnotator implements ChatTextAnnotations {
   private disposed = false
-  private readonly sessions = new Map<SessionId, SessionState>()
+  private readonly sessions = new Map<string, SessionState>()
   private readonly cache = new Map<string, { expiresAt: number; value: StockResolution }>()
   private readonly pending = new Map<string, Promise<StockResolution>>()
   private readonly queue = new AsyncQueue(2)
 
   constructor(
     private readonly connection: ConnectionHandle,
-    private readonly onActivate: (sessionId: SessionId, security: StockSecurity) => void,
+    private readonly onActivate: (sessionId: string, security: StockSecurity) => void,
     private readonly candidateLimit: number,
-    private readonly onSessionRelease: (sessionId: SessionId) => void,
+    private readonly onSessionRelease: (sessionId: string) => void,
   ) {}
 
-  stateFor(sessionId: SessionId) {
+  stateFor(sessionId: string) {
     return this.state(sessionId).source
   }
 
   request(
-    sessionId: SessionId,
-    messageId: MessageId,
+    sessionId: string,
+    messageId: string,
     blocks: readonly { readonly index: number; readonly text: string }[],
   ): void {
     const state = this.state(sessionId)
@@ -66,7 +65,7 @@ export class StockMentionAnnotator implements ChatTextAnnotations {
     }
   }
 
-  release(sessionId: SessionId): void {
+  release(sessionId: string): void {
     const state = this.sessions.get(sessionId)
     if (state === undefined) return
     for (const controller of state.controllers) controller.abort()
@@ -83,8 +82,8 @@ export class StockMentionAnnotator implements ChatTextAnnotations {
   }
 
   private async annotateBlock(
-    sessionId: SessionId,
-    messageId: MessageId,
+    sessionId: string,
+    messageId: string,
     blockIndex: number,
     candidates: readonly StockMentionCandidate[],
     signal: AbortSignal,
@@ -98,7 +97,7 @@ export class StockMentionAnnotator implements ChatTextAnnotations {
     if (annotations.length === 0) return
     const state = this.sessions.get(sessionId)
     if (state === undefined || signal.aborted) return
-    const byMessage = new Map<MessageId, AssistantTextAnnotations>(state.snapshot)
+    const byMessage = new Map<string, AssistantTextAnnotations>(state.snapshot)
     const byBlock = new Map<number, readonly MarkdownTextAnnotation[]>(byMessage.get(messageId) ?? [])
     byBlock.set(blockIndex, annotations)
     byMessage.set(messageId, byBlock)
@@ -106,7 +105,7 @@ export class StockMentionAnnotator implements ChatTextAnnotations {
     for (const listener of [...state.listeners]) listener()
   }
 
-  private annotation(sessionId: SessionId, candidate: StockMentionCandidate, security: StockSecurity): MarkdownTextAnnotation {
+  private annotation(sessionId: string, candidate: StockMentionCandidate, security: StockSecurity): MarkdownTextAnnotation {
     return {
       start: candidate.start,
       end: candidate.end,
@@ -149,7 +148,7 @@ export class StockMentionAnnotator implements ChatTextAnnotations {
     return promise
   }
 
-  private state(sessionId: SessionId): SessionState {
+  private state(sessionId: string): SessionState {
     const existing = this.sessions.get(sessionId)
     if (existing !== undefined) return existing
     const listeners = new Set<() => void>()

@@ -1,8 +1,7 @@
-import type { SessionId } from '@deepseek-ai/dsh-client-runtime/client'
 import type { StockSecurity } from '../rpc-contract.ts'
 
 export interface StockMentionSelection {
-  sessionId: SessionId
+  sessionId: string
   security: StockSecurity
 }
 
@@ -29,7 +28,7 @@ export class StockMentionPanelController {
     this.emit()
   }
 
-  closeSession(sessionId: SessionId): void {
+  closeSession(sessionId: string): void {
     if (this.selection?.sessionId === sessionId) this.close()
   }
 

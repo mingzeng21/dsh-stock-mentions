@@ -13,10 +13,8 @@ const CLIENT_EXTERNALS = [
   '@deepseek-ai/cordis',
   '@deepseek-ai/dsh-client-connection',
   '@deepseek-ai/dsh-client-connection/client',
-  '@deepseek-ai/dsh-client-runtime/client',
-  '@deepseek-ai/dsh-client-ui-conversation/client',
+  '@deepseek-ai/dsh-session/types',
   '@deepseek-ai/dsh-client-ui-layout/client',
-  '@deepseek-ai/dsh-client-ui-primitives',
   '@deepseek-ai/dsh-client-ui-slots',
 ] as const
 const CSS_VIRTUAL_PREFIX = '\u0000dsh-stock-mentions-css:'

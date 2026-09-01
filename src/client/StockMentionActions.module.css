@@ -1,0 +1,35 @@
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 150px;
+  height: calc(28px + var(--dsh-content-font-delta, 0px));
+  padding: 4px 9px;
+  overflow: hidden;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 14px;
+  color: var(--dsw-alias-label-secondary);
+  background: var(--dsw-alias-bg-module-platform);
+  cursor: pointer;
+  font-size: var(--dsh-content-font-size-secondary, 13px);
+  line-height: 1;
+}
+
+.action span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action:hover,
+.action:focus-visible {
+  border-color: var(--dsw-alias-interactive-bg-hover-accent);
+  color: var(--dsw-alias-label-primary);
+  outline: none;
+}

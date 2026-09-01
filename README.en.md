@@ -1,95 +1,138 @@
 # dsh-stock-mentions
 
-Mention a stock name or code in a DSH conversation and it becomes a clickable button—click once to open quotes and company news in the right sidebar.
+Recognize Shanghai and Shenzhen ordinary A-share names and codes in DeepSeek Harness (DSH) assistant replies, then expose confirmed stocks as clickable buttons in the assistant action row. Clicking a button opens a market panel with quotes, intraday data, daily K-lines, and company news.
 
 [![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
 
 [中文](README.md) | English
 
-`dsh-stock-mentions` is a DeepSeek Harness plugin that extracts Shanghai and Shenzhen ordinary A-share names and codes from DSH output text, then renders confirmed stocks as accessible buttons. Click a button to open a market sidebar on the right side of DSH Web with a quote snapshot, intraday chart, the latest 30 trading days of daily K-lines, and company news.
+> Current target: DSH `v0.1.2-alpha.3`. This DSH release does not yet expose a generic Markdown text-annotation entry point, so stock buttons currently appear in the action row of a finalized assistant answer rather than at the original text position. Inline buttons can return after DSH adds that extension point.
 
-## See it in action
+## Screenshots
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc1.png" width="49%" alt="Security buttons and market sidebar in light mode" />
-  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc-2.png" width="49%" alt="Market sidebar showing company news in dark mode" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc1.png" width="49%" alt="Stock button and market panel in light mode" />
+  <img src="https://raw.githubusercontent.com/mingzeng21/dsh-stock-mentions/main/docs/screenshots/sc-2.png" width="49%" alt="Company news panel in dark mode" />
 </p>
 
-<p align="center"><sub>Security extraction · Clickable buttons · Market sidebar · Theme follows DSH settings</sub></p>
+## Quick start
 
-## What it does
+### Requirements
 
-When DSH output text contains a stock name or code, the plugin:
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.2-alpha.3` or a compatible `0.1.2-alpha` release
+- Node.js `>=22.19.0`
+- An initialized DSH `web` profile
 
-1. finds the stock name or code in the DSH output text;
-2. turns the confirmed stock into a clickable button;
-3. opens the market sidebar when the button is clicked.
+### Install
 
-The sidebar presents the security name, market, latest price, change, high, low, open, market cap, volume ratio, turnover, amount, volume, previous close, intraday movement, daily K-lines, and company news in one compact view.
+Install the plugin into the Web profile with the DSH CLI:
+
+```sh
+dsh plugin --profile web add dsh-stock-mentions
+dsh web
+```
+
+If DSH Web is already running, stop and restart `dsh web` after installing or updating, then refresh the browser page.
+
+### Verify the feature
+
+Ask the assistant to include a clear stock name or code, for example:
+
+```text
+请简要介绍贵州茅台（600519.SH）的主营业务，并列出需要关注的风险。
+```
+
+After the answer finishes, find the “贵州茅台” button in the action row below the answer. Click it to open the market panel on the right.
+
+## Local development and testing
+
+This repository has no standalone development server. Validate the UI through the DSH Web host.
+
+Install dependencies and run the complete verification from the plugin directory:
+
+```sh
+cd /path/to/dsh-stock-mentions
+npm install
+npm run verify
+```
+
+Test the plugin with a DSH checkout running from source:
+
+```sh
+cd /path/to/deepseek-harness
+pnpm dsh plugin --profile web add /path/to/dsh-stock-mentions
+pnpm dsh web
+```
+
+After changing plugin code, run `npm run build` or `npm run verify`, then restart DSH Web. A local install uses a `link:` package, so reinstalling is usually unnecessary.
+
+Useful checks:
+
+```sh
+# Confirm that the plugin is in the web profile
+pnpm dsh web --dump-config > /tmp/dsh-web-config.txt
+grep -n "stock-mentions" /tmp/dsh-web-config.txt
+
+# Run tests, build, or package verification separately
+npm test
+npm run build
+npm run verify:package
+```
+
+Run `npm install` and `npm run verify` as separate commands. Passing multiple commands directly as `npm install` arguments can produce npm’s `edgesOut` error. If `rg` is not installed, use `grep` as shown above.
 
 ## Features
 
-- **Automatic stock recognition** — Finds stock names and codes in DSH output text and adds accessible buttons at their original positions.
-- **Click to view quotes** — Opens from the right side of DSH Web after a stock button is clicked, with quote data kept at the top.
-- **Intraday and daily charts** — Uses a gradual area fill and right-side price axis for intraday data; daily K-lines cover the latest 30 trading days.
-- **Company news** — Shows the latest 10 items with title, source, and publication time, with Chinese decoding and provider switching handled in the data layer.
-- **Theme and locale** — Theme follows DSH settings; Chinese and English are provided through DSH `ctx.locale`.
-- **Market data sources** — Uses public data endpoints from Eastmoney, Tencent Finance, Sina Finance, and Tonghuashun, with automatic fallback by data type.
-- **Public data integration** — The Host owns public market requests, response validation, timeouts, cancellation, caching, and provider fallback; no API key is required.
+- Recognizes Shanghai and Shenzhen ordinary A-share names and codes in finalized assistant replies.
+- Shows a button only after the Host uniquely confirms the security, reducing false matches for dates, amounts, and ordinary numbers.
+- Displays latest price, change, high, low, open, market cap, volume ratio, turnover, amount, volume, and previous close.
+- Supports intraday movement and daily K-lines for the latest 30 trading days, using adjusted daily data.
+- Shows the latest 10 company-news items by default.
+- Uses a 360px default panel width to match DSH’s details-column default; below 320px it switches to a compact single-column layout.
+- Follows DSH theme settings and receives Chinese/English strings through DSH locale injection.
+- Keeps timeouts, cancellation, caching, response validation, and provider fallback in the Host data layer.
 
-## How it works
+## Recognition scope
+
+Supported code formats include:
 
 ```text
-DSH output text
-          │
-          ▼
-Extract candidates → Host confirms security
-          │
-          ▼
-Security button → Click to open market sidebar
-          │
-          ▼
-Quote · Intraday · Daily K-line · News
+600519.SH
+000001.SZ
+688001.SH
 ```
 
-The browser client receives normalized data through the `/stock-mentions` RPC channel. Security resolution and market-data adapters live in an independent Host-side data layer.
+Official short names are also supported after unique Host confirmation, such as “贵州茅台” and “平安银行”. The plugin accepts ordinary A-shares listed in Shanghai or Shenzhen and excludes indices, funds, ETFs, bonds, B-shares, Beijing-listed securities, and sector codes.
 
-## Install
+The plugin does not parse:
 
-Install the plugin from the [npm package page](https://www.npmjs.com/package/dsh-stock-mentions):
+- user messages, reasoning, tool results, or unfinished streaming text;
+- Markdown links, fenced code blocks, math expressions, or literal HTML;
+- names, codes, or security types that cannot be uniquely confirmed.
 
-```sh
-dsh plugin add dsh-stock-mentions
-```
+## Data and security
 
-## Update
+The browser client does not call market-data websites directly. It requests normalized data from the Host through the versioned `/stock-mentions` RPC channel. The Host uses fixed public providers, including Eastmoney, Tencent Finance, Sina Finance, and Tonghuashun, with resource-specific fallback order.
 
-Run the same `add` command to get the latest version:
-
-```sh
-dsh plugin add dsh-stock-mentions
-```
-
-Restart the Harness (`dsh web`) or refresh the DSH Web UI after updating.
+- No API key, cookie, authorization header, or other service credential is required.
+- The browser submits only constrained candidates and normalized symbols.
+- The full assistant reply, arbitrary URLs, and user credentials are not sent upstream.
+- Market-panel state stays in the current client session and is not written to the conversation log.
+- The plugin is read-only: it does not trade, manage watchlists or positions, or provide investment advice.
 
 ## Uninstall
 
 ```sh
-dsh plugin remove dsh-stock-mentions
+dsh plugin --profile web remove dsh-stock-mentions
 ```
 
-## Data and security
+## Development verification
 
-- Processes Shanghai and Shenzhen ordinary A-share codes and official short names from DSH output text.
-- Sends market requests only after the Host confirms a security candidate.
-- Keeps request constraints and response validation in the Host data layer.
-- Keeps market-panel state in the current client session instead of the conversation log.
-- Requires no API key, cookie, authorization header, or other service credentials.
+```sh
+npm run verify
+```
 
-## Requirements
-
-- [DeepSeek Harness](https://github.com/deepseek-ai/dsh) (`dsh`)
-- Node.js ≥ 22.19.0
+This runs TypeScript checks, the Vitest suite, the production build, and npm package validation.
 
 ## License
 

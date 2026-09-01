@@ -2,7 +2,7 @@
 
 ## 1. 背景
 
-DeepSeek Harness 的 Web 客户端从会话事件投影 `ConversationSnapshot`，再沿 `AssistantMarkdown` → `MarkdownText` → React DOM 渲染助手输出。本插件在这条展示路径上增加股票提及标注：助手输出稳定后，文本中的 A 股代码或唯一确认的规范简称变成可访问按钮。
+DeepSeek Harness 的 Web 客户端从会话事件投影 `ConversationSnapshot`，再沿 `AssistantMarkdown` → `MarkdownText` → React DOM 渲染助手输出。由于 dsh-v0.1.2-alpha.3 尚未提供通用 Markdown 标注入口，本插件当前通过 `conversation.chat.assistant-actions` 在已完成助手回答的操作区增加股票按钮；未来上游提供标注契约后，再将按钮下沉到原文范围内。
 
 点击按钮只打开客户端的股票面板。面板通过 Host 侧 UI RPC 获取报价、分时、K 线和个股资讯；客户端不直接请求公开行情网站，不修改助手原文，也不把面板状态写进会话日志。
 
@@ -11,7 +11,7 @@ DeepSeek Harness 的 Web 客户端从会话事件投影 `ConversationSnapshot`�
 - `dsh-stock-mentions` 是独立的 UI-only 插件，拥有自己的证券解析、公开数据适配、归一化、缓存、请求控制、RPC 和面板。
 - 可以参考或复制 `dsh-stock-market` 的公开数据适配、请求控制和归一化实现，但不导入它的包、不注入它的服务、不注册它的 RPC、不注册 Agent 股票工具。
 - 只支持沪深交易所普通 A 股股票；排除指数、基金、ETF、债券、B 股、北交所证券和板块代码。
-- 标注所有已完成助手普通文本块；不标注 reasoning、工具结果、用户消息或流式文本。
+- 解析所有已完成助手普通文本块；不解析 reasoning、工具结果、用户消息或流式文本；解析结果在 assistant action row 汇总为按钮。
 - 支持普通段落、列表、表格单元格，以及精确证券代码的行内代码；排除链接、围栏代码块、数学公式和 HTML 字面量。
 - 证券名称通过 Host 的公开搜索接口动态确认；只有唯一有效证券匹配才生成标注。
 - 面板使用根级 `shell.overlay`，选择状态绑定当前会话；切换会话时关闭面板并取消请求。
@@ -19,7 +19,7 @@ DeepSeek Harness 的 Web 客户端从会话事件投影 `ConversationSnapshot`�
 - 顶部展示当前价、涨跌额/幅、最高、最低、开盘、市值、量比、换手率等只读指标；不展示委托、五档盘口或成交明细。
 - 只读、手动刷新；不提供交易、自选股、持仓、投资建议或会影响 Agent 上下文的动作。
 - 客户端通过 DSH `ctx.locale` 注册 `stockMentions` 命名空间的完整 `zh/en` 词典；overlay 声明同一命名空间，由框架注入 `t()`，语言切换时自动重新渲染。面板不直接读取 `navigator.language`。
-- 文本标注是 Harness 的通用纯数据扩展点，`ui-primitives` 不依赖 Cordis；股票插件通过 `ui-conversation` 接入该扩展点。
+- 文本标注按 Harness 通用纯数据扩展点设计，`ui-primitives` 不依赖 Cordis；但 `dsh-v0.1.2-alpha.3` 尚未提供该扩展点，插件暂时只保留本地适配契约，等待上游渲染入口。
 
 ## 3. 用户流程
 
@@ -34,7 +34,7 @@ Host resolve-mentions：精确搜索并过滤普通 A 股
     ↓
 解析结果进入缓存，Markdown 重新渲染
     ↓
-证券提及显示为按钮
+证券提及在助手回答操作区显示为按钮
     ↓ 点击
 StockMentionPanelController.open(symbol)
     ↓
@@ -43,11 +43,11 @@ Host RPC：security-quote / security-intraday / security-kline / security-news
 shell.overlay 显示股票面板
 ```
 
-解析失败不会阻塞对话，也不会改变原文。解析成功后才增加按钮；面板请求失败只影响当前资源 tab。
+解析失败不会阻塞对话，也不会改变原文。解析成功后才增加操作区按钮；面板请求失败只影响当前资源 tab。
 
-## 4. Harness 文本标注扩展
+## 4. 待上游提供的 Harness 文本标注扩展
 
-当前 `MarkdownText` 已有文件提及先例，但没有可注册的通用文本标注输入。需要在 Harness 中增加通用接口：
+当前 `MarkdownText` 已有文件提及先例，但没有可注册的通用文本标注输入。插件已使用 alpha.3 提供的 `conversation.chat.assistant-actions` 作为兼容入口；如果要把按钮嵌回原文，仍需要在 Harness 中增加通用接口：
 
 ```ts
 interface TextAnnotation {
@@ -197,7 +197,7 @@ interface StockMentionSelection {
 }
 ```
 
-面板使用根级 `shell.overlay`，不是 `details` 列。打开时获得焦点，Escape 关闭并将焦点返回触发按钮；窄屏覆盖中心对话区；关闭或切换证券时取消未完成请求。首发不自动滚动聊天、不高亮来源文本。
+面板使用根级 `shell.overlay`，不是 `details` 列，因此始终贴合窗口右边缘，不为左侧会话栏预留空白。面板默认宽度为 360px，与 DSH 详情栏默认宽度保持一致；内部布局使用面板容器断点，在 320px 以下自动切换为单列报价和更紧凑的图表。打开时获得焦点，Escape 关闭并将焦点返回触发按钮；窄屏覆盖中心对话区；关闭或切换证券时取消未完成请求。首发不自动滚动聊天、不高亮来源文本。
 
 图表按 tab 懒加载：
 
@@ -288,12 +288,11 @@ Host 和 Client 通过独立 bundle、manifest 和 `cordis.patch.yml` 安装。�
 
 ## 11. 实现状态
 
-### Phase 0：Harness 通用标注能力（已完成）
+### Phase 0：Harness 通用标注能力（待上游）
 
-- 在 `ui-primitives` 增加纯数据标注输入和安全范围渲染。
-- 在 `ui-conversation` 增加已完成助手文本的可选标注服务。
-- 保留文件提及行为，并用通用接口承载它。
-- 用测试标注器覆盖普通文本、行内代码、链接、围栏代码、数学公式、流式和卸载。
+- 插件保留 `annotation-contract.ts` 作为未来通用标注接口的兼容契约。
+- 等待上游在 `ui-primitives` / `ui-chat` 增加纯数据标注输入和已完成助手文本的可选标注服务。
+- 上游接口落地后，再补齐普通文本、行内代码、链接、围栏代码、数学公式、流式和卸载的浏览器组合测试。
 
 ### Phase 1：独立 Host 数据层（已完成基础实现）
 
@@ -304,7 +303,7 @@ Host 和 Client 通过独立 bundle、manifest 和 `cordis.patch.yml` 安装。�
 
 ### Phase 2：面板和文本入口（已完成基础实现）
 
-- 接入通用文本标注服务。
+- 在 DSH alpha.3 的 `conversation.chat.assistant-actions` 中接入已完成回答的股票操作按钮；保留通用文本标注契约，等待上游原文渲染入口。
 - 实现 `shell.overlay` 面板、会话级 controller、tab 懒加载、刷新、取消和错误状态。
 - 实现报价、分时、K 线、资讯和 SVG 图表。
 
@@ -347,4 +346,4 @@ Harness 主仓库已同步记录通用 `MarkdownText` 扩展的 README、测试�
 
 ## 14. 第一实施顺序
 
-已按“通用标注接口 → 证券解析 → RPC 数据层 → overlay 面板”的顺序完成基础实现；下一步是接入真实 Loader、浏览器组合测试、keyless snapshot 和包校验。这样文本渲染扩展点、公开数据适配和股票面板三个风险可以分别验证。
+已按“DSH action slot 兼容入口 → 证券解析 → RPC 数据层 → overlay 面板”的顺序完成 alpha.3 可用实现；下一步是完成真实 Loader、浏览器组合测试，并在 Harness 提供 Markdown 标注入口后恢复原文内联按钮。

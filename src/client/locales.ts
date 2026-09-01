@@ -8,7 +8,7 @@ export const zh = {
   previousClose: '昨收', marketTime: '交易时间', qfq: '前复权', source: '数据源', fetched: '更新时间',
   warning: '数据已降级', panel: '股票行情面板', lineChart: '分时走势', candleChart: 'K线走势',
   chartNoData: '暂无图表数据', average: '均价', chartHigh: '最高', chartLow: '最低', quoteLoading: '行情数据加载中…', quoteError: '顶部行情暂不可用',
-  marketSH: '沪A', marketSZ: '深A', recent30: '最近30日',
+  marketSH: '沪A', marketSZ: '深A', recent30: '最近30日', viewQuote: '查看行情',
   unitTrillion: '万亿', unitHundredMillion: '亿', unitTenThousand: '万',
   sourceEastmoney: '东方财富', sourceTencent: '腾讯', sourceSina: '新浪', sourceTonghuashun: '同花顺',
 } as const
@@ -23,7 +23,7 @@ export const en = {
   previousClose: 'Prev close', marketTime: 'Market time', qfq: 'Adjusted', source: 'Source', fetched: 'Updated',
   warning: 'Fallback source', panel: 'Stock quote panel', lineChart: 'Intraday chart', candleChart: 'K-line chart',
   chartNoData: 'No chart data', average: 'Average', chartHigh: 'High', chartLow: 'Low', quoteLoading: 'Quote loading…', quoteError: 'Quote unavailable',
-  marketSH: 'SH A', marketSZ: 'SZ A', recent30: 'Recent 30 days',
+  marketSH: 'SH A', marketSZ: 'SZ A', recent30: 'Recent 30 days', viewQuote: 'View quote',
   unitTrillion: 'T', unitHundredMillion: '100M', unitTenThousand: '10K',
   sourceEastmoney: 'Eastmoney', sourceTencent: 'Tencent', sourceSina: 'Sina', sourceTonghuashun: 'Tonghuashun',
 } satisfies Record<StockMentionsKey, string>

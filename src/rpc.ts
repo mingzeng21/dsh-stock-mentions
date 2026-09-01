@@ -23,7 +23,7 @@ export interface StockMentionsRpcOptions {
   config: StockMentionsPluginConfig
 }
 
-/** Mount the standalone versioned RPC channel on the trusted Host connection. */
+/** Mount the standalone versioned RPC channel on the authenticated Host connection. */
 export function registerStockMentionsRpc(
   connection: HostConnectionHandle,
   options: StockMentionsRpcOptions,
@@ -31,7 +31,6 @@ export function registerStockMentionsRpc(
   return connection.rpc.handle(
     STOCK_MENTIONS_RPC_CHANNEL,
     createStockMentionsRpcHandler(options),
-    { authority: 'trusted-host' },
   )
 }
 
