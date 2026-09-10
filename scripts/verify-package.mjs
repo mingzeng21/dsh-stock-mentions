@@ -31,6 +31,7 @@ assert(/name:\s*dsh-stock-mentions\b/u.test(patch), 'bundle patch 缺少插件�
 const serverEntry = readText('lib/index.js')
 const clientEntry = readText('lib/client.js')
 assert(/export const name\s*=\s*['"]dsh-stock-mentions['"]/u.test(serverEntry), 'Host bundle 未导出插件名称')
+assert(/export const inject\s*=\s*\['connection',\s*'webServer'\]/u.test(serverEntry), 'Host bundle 未声明 webServer 注入')
 assert(clientEntry.includes('window.__ModuleLoader__.load'), 'Client bundle 未注册 ModuleLoader')
 assert(clientEntry.includes('dsh-stock-mentions'), 'Client bundle 未包含插件 id')
 assert(!/(?:from\s+|require\()['"][^'"]+\.ts['"]/.test(clientEntry), 'Client bundle 仍引用 TypeScript 源文件')

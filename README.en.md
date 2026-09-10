@@ -6,7 +6,7 @@ Recognize Shanghai and Shenzhen ordinary A-share names and codes in DeepSeek Har
 
 [中文](README.md) | English
 
-> Current target: DSH `v0.1.2-alpha.3`. This DSH release does not yet expose a generic Markdown text-annotation entry point, so stock buttons currently appear in the action row of a finalized assistant answer rather than at the original text position. Inline buttons can return after DSH adds that extension point.
+> Current target: DSH `v0.1.5-alpha.1`. This DSH release does not yet expose a generic Markdown text-annotation entry point, so stock buttons currently appear in the action row of a finalized assistant answer rather than at the original text position. Inline buttons can return after DSH adds that extension point.
 
 ## Screenshots
 
@@ -19,7 +19,7 @@ Recognize Shanghai and Shenzhen ordinary A-share names and codes in DeepSeek Har
 
 ### Requirements
 
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.2-alpha.3` or a compatible `0.1.2-alpha` release
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.5-alpha.1` or a compatible `0.1.x` release that provides the Web `webServer` service
 - Node.js `>=22.19.0`
 - An initialized DSH `web` profile
 

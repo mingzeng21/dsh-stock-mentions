@@ -6,7 +6,7 @@
 
 中文 | [English](README.en.md)
 
-> 当前适配 DSH `v0.1.2-alpha.3`。由于该版本还没有通用 Markdown 文本标注入口，股票按钮目前显示在已完成助手回答的操作区，而不是股票原文位置。待 DSH 提供该扩展点后，再恢复原文内联按钮。
+> 当前适配 DSH `v0.1.5-alpha.1`。由于该版本还没有通用 Markdown 文本标注入口，股票按钮目前显示在已完成助手回答的操作区，而不是股票原文位置。待 DSH 提供该扩展点后，再恢复原文内联按钮。
 
 ## 效果
 
@@ -19,7 +19,7 @@
 
 ### 环境要求
 
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.2-alpha.3` 或兼容的 `0.1.2-alpha` 版本
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.5-alpha.1` 或提供 Web `webServer` 服务的兼容 `0.1.x` 版本
 - Node.js `>=22.19.0`
 - 已初始化 DSH 的 `web` profile
 

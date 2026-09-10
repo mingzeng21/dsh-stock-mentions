@@ -8,7 +8,9 @@ import {
 } from './rpc-contract.ts'
 
 export const name = 'dsh-stock-mentions'
-export const inject = ['connection']
+// `connection.rpc.handle()` mounts a physical route through the owning fiber's
+// webServer in current DSH releases, so both services must be dependencies.
+export const inject = ['connection', 'webServer']
 const providerSchema = z.union(['eastmoney', 'tencent', 'sina', 'tonghuashun'] as const)
 
 export const Config = z.object({
