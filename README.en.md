@@ -2,11 +2,11 @@
 
 Recognize Shanghai and Shenzhen ordinary A-share names and codes in DeepSeek Harness (DSH) assistant replies, then expose confirmed stocks as clickable buttons in the assistant action row. Clicking a button opens a market panel with quotes, intraday data, daily K-lines, and company news.
 
-[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: 22.19+ on 22 or 24+](https://img.shields.io/badge/Node-22.19%2B%20on%2022%20%7C%2024%2B-339933.svg)](https://nodejs.org)
 
 [中文](README.md) | English
 
-> Current target: DSH `v0.1.5-alpha.1`. This DSH release does not yet expose a generic Markdown text-annotation entry point, so stock buttons currently appear in the action row of a finalized assistant answer rather than at the original text position. Inline buttons can return after DSH adds that extension point.
+> Supports DSH `v0.1.7-rc.2`. DSH still does not expose a generic Markdown text-annotation entry point, so stock buttons appear in the action row of a finalized assistant answer rather than at the original text position.
 
 ## Screenshots
 
@@ -19,8 +19,8 @@ Recognize Shanghai and Shenzhen ordinary A-share names and codes in DeepSeek Har
 
 ### Requirements
 
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.5-alpha.1` or a compatible `0.1.x` release that provides the Web `webServer` service
-- Node.js `>=22.19.0`
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.7-rc.2`
+- Node.js `^22.19.0 || >=24.0.0` (matching current DSH requirements)
 - An initialized DSH `web` profile
 
 ### Install
@@ -45,8 +45,6 @@ Ask the assistant to include a clear stock name or code, for example:
 After the answer finishes, find the “贵州茅台” button in the action row below the answer. Click it to open the market panel on the right.
 
 ## Local development and testing
-
-This repository has no standalone development server. Validate the UI through the DSH Web host.
 
 Install dependencies and run the complete verification from the plugin directory:
 
@@ -78,8 +76,6 @@ npm test
 npm run build
 npm run verify:package
 ```
-
-Run `npm install` and `npm run verify` as separate commands. Passing multiple commands directly as `npm install` arguments can produce npm’s `edgesOut` error. If `rg` is not installed, use `grep` as shown above.
 
 ## Features
 

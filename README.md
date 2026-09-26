@@ -2,11 +2,11 @@
 
 在 DeepSeek Harness（DSH）的助手回答中识别沪深普通 A 股名称和代码，并在回答操作区提供可点击的股票按钮。点击按钮后，右侧行情面板会展示报价、分时图、日 K 线和个股资讯。
 
-[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: >=22.19.0](https://img.shields.io/badge/Node-%3E%3D22.19.0-339933.svg)](https://nodejs.org)
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/dsh-stock-mentions.svg)](https://www.npmjs.com/package/dsh-stock-mentions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Node: 22.19+ on 22 or 24+](https://img.shields.io/badge/Node-22.19%2B%20on%2022%20%7C%2024%2B-339933.svg)](https://nodejs.org)
 
 中文 | [English](README.en.md)
 
-> 当前适配 DSH `v0.1.5-alpha.1`。由于该版本还没有通用 Markdown 文本标注入口，股票按钮目前显示在已完成助手回答的操作区，而不是股票原文位置。待 DSH 提供该扩展点后，再恢复原文内联按钮。
+> 适配到 DSH `v0.1.7-rc.2`。DSH 目前没有通用 Markdown 文本标注入口，股票按钮显示在已完成助手回答的操作区，而不是股票原文位置。
 
 ## 效果
 
@@ -19,8 +19,8 @@
 
 ### 环境要求
 
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.5-alpha.1` 或提供 Web `webServer` 服务的兼容 `0.1.x` 版本
-- Node.js `>=22.19.0`
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `v0.1.7-rc.2`
+- Node.js `^22.19.0 || >=24.0.0`（与当前 DSH 要求一致）
 - 已初始化 DSH 的 `web` profile
 
 ### 安装
@@ -45,8 +45,6 @@ dsh web
 回答完成后，在助手回答底部的操作区找到“贵州茅台”按钮。点击按钮，右侧会打开行情面板。
 
 ## 本地开发与测试
-
-本项目没有独立的开发服务器，UI 必须通过 DSH Web host 验证。
 
 在插件目录安装依赖并运行完整校验：
 
@@ -78,8 +76,6 @@ npm test
 npm run build
 npm run verify:package
 ```
-
-注意：`npm install` 和 `npm run verify` 要分开执行。将多个命令直接作为 `npm install` 的参数可能导致 npm 报 `edgesOut` 错误；如果系统没有 `rg`，可以使用上面的 `grep`。
 
 ## 功能
 
